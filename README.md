@@ -1,5 +1,9 @@
 # ASO (Antigravity Skill Orchestrator)
 
+<p align="center">
+  <img src="frontend/src/assets/aso-logo.png" alt="ASO Logo" width="300" />
+</p>
+
 ASO es un entorno gráfico y orquestador local para el ecosistema **Antigravity**. Desarrollado con una arquitectura moderna que separa el backend (procesamiento de FileSystem y API REST con Express/Ollama) y un frontend web visual y reactivo (React + Vite).
 
 Su función principal es orquestar, activar, desactivar y administrar *skills* (agentes autónomos) dotando al usuario del control de qué herramientas están disponibles a nivel **Global** o a nivel de **Proyecto** (*Human-in-the-Loop*).
