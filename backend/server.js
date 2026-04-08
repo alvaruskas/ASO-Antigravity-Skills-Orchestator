@@ -3,6 +3,7 @@ const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
 const yaml = require('js-yaml');
+const { exec } = require('child_process');
 const { Ollama } = require('ollama');
 const ollama = new Ollama({ host: 'http://127.0.0.1:11434' });
 
@@ -136,6 +137,17 @@ function parseSkillFile(skillPath, name, isActive) {
 }
 
 // Endpoint de estado
+app.post('/api/shutdown', (req, res) => {
+    console.log('Recibida petición de apagado del sistema...');
+    res.json({ success: true, message: "Apagando servidores..." });
+    
+    // Matar procesos en 500ms para permitir que la respuesta HTTP termine
+    setTimeout(() => {
+        exec('pkill -f "node server.js"', () => {});
+        exec('pkill -f "vite"', () => {});
+    }, 500);
+});
+
 app.get('/api/status', (req, res) => {
     if (PROJECT_PATH) {
         const projectName = path.basename(PROJECT_PATH);
@@ -255,6 +267,30 @@ app.delete('/api/skills/:id', (req, res) => {
     } catch (error) {
         console.error("Delete error:", error);
         res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+// Endpoint para leer el contenido de SKILL.md
+app.get('/api/skills/:id/content', (req, res) => {
+    const id = req.params.id;
+    const globalPath = path.join(SKILLS_DIR, id, 'SKILL.md');
+    const localPath = PROJECT_PATH ? path.join(PROJECT_PATH, 'skills', id, 'SKILL.md') : null;
+    const vaultPath = path.join(VAULT_DIR, id, 'SKILL.md');
+
+    let targetPath = null;
+    if (localPath && fs.existsSync(localPath)) targetPath = localPath;
+    else if (fs.existsSync(globalPath)) targetPath = globalPath;
+    else if (fs.existsSync(vaultPath)) targetPath = vaultPath;
+
+    if (!targetPath) {
+        return res.status(404).json({ error: 'SKILL.md no encontrado' });
+    }
+
+    try {
+        const content = fs.readFileSync(targetPath, 'utf8');
+        res.json({ success: true, content });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
     }
 });
 

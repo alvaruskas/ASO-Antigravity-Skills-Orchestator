@@ -19,6 +19,22 @@ function App() {
   });
   const [isGenerating, setIsGenerating] = useState(false);
   const [scopeModal, setScopeModal] = useState({ isOpen: false, skillId: null });
+  const [inspectModal, setInspectModal] = useState({ isOpen: false, skillName: null, content: '', loading: false });
+
+  const inspectSkill = async (skillName) => {
+    setInspectModal({ isOpen: true, skillName, content: '', loading: true });
+    try {
+      const res = await fetch(`${API_URL}/skills/${skillName}/content`);
+      const data = await res.json();
+      if (data.success) {
+        setInspectModal({ isOpen: true, skillName, content: data.content, loading: false });
+      } else {
+        setInspectModal({ isOpen: true, skillName, content: `Error: ${data.error}`, loading: false });
+      }
+    } catch (e) {
+      setInspectModal({ isOpen: true, skillName, content: `Error de red: ${e.message}`, loading: false });
+    }
+  };
 
   useEffect(() => {
     localStorage.setItem('aso_chat_history', JSON.stringify(chatMessages));
@@ -155,7 +171,23 @@ function App() {
           </div>
         </nav>
         
-        <div className="p-4 border-t border-[#3a4a49]/30 flex flex-col items-center justify-center text-center">
+        <div className="p-4 border-t border-[#3a4a49]/30 flex flex-col items-center justify-center text-center w-full">
+          <button 
+           onClick={async () => {
+             if(!window.confirm("¿Estás seguro de que quieres cerrar ASO? Se apagarán los servidores.")) return;
+             try {
+               await fetch(`${API_URL}/shutdown`, { method: 'POST' });
+               document.body.innerHTML = '<div style="display:flex; height:100vh; width:100vw; align-items:center; justify-content:center; background:#0e1320; color:white; font-family:monospace; flex-direction:column;"><h2>ASO Offline</h2><p>Los servidores han sido apagados. Puedes cerrar esta pestaña.</p></div>';
+             } catch (e) {
+               console.error("Error al apagar", e);
+             }
+           }}
+           className="w-full flex items-center justify-center gap-2 mb-4 px-4 py-2 bg-[#ff4444]/10 border border-[#ff4444]/30 hover:bg-[#ff4444]/20 hover:border-[#ff4444] text-[#ff4444] rounded-lg transition-all"
+          >
+           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+           Apagar ASO
+          </button>
+          
           <div className="text-[10px] text-[#839493] tracking-widest uppercase font-mono mb-2">
             V2.0 Midnight Terminal
           </div>
@@ -258,9 +290,17 @@ function App() {
                     <span className={`text-xs font-mono font-medium ${skill.isActive ? 'text-[#00fbfb]' : 'text-[#839493]'}`}>
                       {skill.isActive ? 'ONLINE' : 'OFFLINE'}
                     </span>
-                    
-                    {/* Toggle Switch */}
-                    <label className="relative inline-flex items-center cursor-pointer">
+                    <div className="flex items-center gap-3">
+                      <button 
+                         onClick={() => inspectSkill(skill.id)} 
+                         className="text-[#839493] hover:text-[#00fbfb] transition-colors p-1" 
+                         title="Ver archivo SKILL.md"
+                      >
+                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                      </button>
+                      
+                      {/* Toggle Switch */}
+                      <label className="relative inline-flex items-center cursor-pointer">
                       <input 
                         type="checkbox" 
                         className="sr-only peer" 
@@ -271,6 +311,7 @@ function App() {
                     </label>
                   </div>
                 </div>
+              </div>
               ))}
             </div>
           )}
@@ -448,6 +489,37 @@ function App() {
               >
                 Cancelar
               </button>
+            </div>
+          </div>
+        )}
+
+        {/* Inspect Modal */}
+        {inspectModal.isOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-8">
+            <div className="bg-[#0e1320] border border-[#3a4a49] rounded-xl shadow-2xl flex flex-col w-full max-w-4xl h-full max-h-[85vh] relative">
+              <div className="flex items-center justify-between p-4 border-b border-[#3a4a49] bg-[#090e1b] rounded-t-xl shrink-0">
+                <h3 className="text-xl font-medium text-white flex items-center gap-2">
+                  <span className="text-2xl">🔍</span> {inspectModal.skillName}
+                </h3>
+                <button 
+                  onClick={() => setInspectModal({isOpen:false, skillName:null, content:'', loading:false})}
+                  className="text-[#839493] hover:text-white p-2 rounded-lg hover:bg-[#161b29] transition-colors"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+              </div>
+              
+              <div className="p-6 overflow-y-auto flex-1 bg-[#090e1b]/50">
+                {inspectModal.loading ? (
+                  <div className="flex items-center justify-center h-full">
+                    <div className="text-[#00fbfb] animate-pulse">Cargando archivo...</div>
+                  </div>
+                ) : (
+                  <pre className="text-sm text-[#b9cac9] whitespace-pre-wrap font-mono leading-relaxed">
+                    {inspectModal.content}
+                  </pre>
+                )}
+              </div>
             </div>
           </div>
         )}
