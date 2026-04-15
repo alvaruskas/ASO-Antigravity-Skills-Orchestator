@@ -9,25 +9,45 @@ yarn-error.log*
 node_modules/
 backend/node_modules/
 frontend/node_modules/
+.npm/
 
-# Mac OS
-.DS_Store
+# Entorno y secretos
+.env
+.env.*
+!.env.example
 
-# Built files
+# Build / Built files
+dist/
+build/
+.vite/
 frontend/dist/
 backend/dist/
-dist/
 
-# Env vars
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+# macOS
+.DS_Store
+**/.DS_Store
+._*
+
+# Temporales del agente
+.tmp/
+*.tmp
+.agents/
 
 # IDEs and Editors
 .vscode/
 .idea/
+*.swp
+*.swo
+
+# Archivos de sistema
+Thumbs.db
 
 # ASO specific local profiles
 .aso_profile.json
+
+# Carpetas de proyectos cliente (no subir)
+BODEGA/
+Anteiormente/
+Biblioteca/
+LOGO/
+"VIDEOS PARA SUBTITULOS"/
