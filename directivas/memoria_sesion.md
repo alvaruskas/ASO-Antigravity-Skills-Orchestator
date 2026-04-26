@@ -1,21 +1,17 @@
-# Memoria de Sesión - Actualización de Sistema y Documentación Premium
+# Memoria de Sesión - Corrección Crítica de Infraestructura MCP
 
 ## Estado Actual
-- **Sincronización App**: La aplicación ASO local (`aso-app-codigo-fuente`) ha sido sincronizada con la versión global más reciente (`/Users/uskas/.gemini/antigravity/aso-app`).
-- **Sincronización Skills**: El vault local (`skills-library/vault`) ha sido actualizado con todas las skills del vault global (`/Users/uskas/.gemini/antigravity/skills_vault`).
-- **Instalación y Portabilidad**:
-  - Se ha creado `setup.sh` para la instalación automática de dependencias.
-  - Se ha creado/actualizado `start_aso.sh` en la raíz con rutas relativas para que el proyecto sea portable e instalable.
-- **Documentación**: `README.md` actualizado a versión Premium con insignias, arquitectura Mermaid e instrucciones claras de instalación.
-- **Git**: Los cambios están commiteados localmente, pero falta configurar el `remote` de GitHub para realizar el push.
+- **Sincronización App & Skills**: Sincronizado y en GitHub.
+- **Error Docker MCP GitHub**: **RESUELTO**. Se identificó que `mcp_config.json` en `.gemini/antigravity` intentaba ejecutar el servidor de GitHub vía Docker. Se cambió a `npx` para eliminar la dependencia.
+- **GitHub MCP**: Ahora configurado para usar `@modelcontextprotocol/server-github` vía `npx`.
+- **Token GitHub**: Validado y funcionando para el usuario `alvaruskas`.
 
 ## Trampas Evitadas
-- **Rutas Absolutas**: Se han evitado rutas absolutas en los scripts de arranque (`start_aso.sh`) para permitir que cualquier usuario que clone el repo pueda ejecutarlo sin cambios manuales.
-- **Exclusión de Entornos**: Se han añadido `.venv/`, `.agents/` y carpetas de activos pesados al `.gitignore` para mantener el repositorio limpio.
+- **Dependencia de Docker**: No asumir que Docker está presente en sistemas Mac si no es estrictamente necesario.
+- **Configuraciones Duplicadas**: Se revisó tanto Claude Desktop como el config global de `.gemini` para asegurar coherencia.
 
 ## Siguientes Pasos
-1. **Configurar Remote**: Obtener la URL del repositorio de GitHub para subir los cambios.
-2. **Push Final**: Una vez configurado el remote, ejecutar `git push origin main`.
-3. **Verificación**: Ejecutar `./setup.sh` y `./start_aso.sh` para confirmar que la nueva versión sincronizada funciona correctamente en este entorno.
+1. **Reinicio de Sesión**: El usuario debe reiniciar su terminal/CLI para que el nuevo config de MCP surta efecto.
+2. **Prueba de Herramientas**: Intentar usar una herramienta de GitHub (ej. listar repos) para confirmar la carga del servidor.
 
 **Bucle cerrado. Volcando Traspaso en memoria_sesion.md**
