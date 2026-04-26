@@ -1,147 +1,144 @@
 ---
 name: wp-performance
-description: "Use when investigating or improving WordPress performance (backend-only agent): profiling and measurement (WP-CLI profile/doctor, Server-Timing, Query Monitor via REST headers), database/query optimization, autoloaded options, object caching, cron, HTTP API calls, and safe verification."
-compatibility: "Targets WordPress 6.9+ (PHP 7.2.24+). Backend-only agent; prefers WP-CLI (doctor/profile) when available."
+description: "Usa esta skill para investigar o mejorar el rendimiento de WordPress (agente solo backend): perfilado y medición (WP-CLI profile/doctor, Server-Timing, Query Monitor vía REST headers), optimización de base de datos/consultas, opciones de carga automática (autoload), caché de objetos, cron, llamadas a la API HTTP y verificación segura."
+compatibility: "Dirigido a WordPress 6.9+ (PHP 7.2.24+). Agente solo para backend; prefiere WP-CLI (doctor/profile) cuando esté disponible."
 category: "⚡ WordPress"
 ---
 
-# WP Performance (backend-only)
+# Rendimiento de WP (solo backend)
 
-## When to use
+## Cuándo usar
 
-Use this skill when:
+Usa esta skill cuando:
 
-- a WordPress site/page/endpoint is slow (frontend TTFB, admin, REST, WP-Cron)
-- you need a profiling plan and tooling recommendations (WP-CLI profile/doctor, Query Monitor, Xdebug/XHProf, APMs)
-- you’re optimizing DB queries, autoloaded options, object caching, cron tasks, or remote HTTP calls
+- Un sitio/página/endpoint de WordPress va lento (TTFB del frontend, administración, REST, WP-Cron).
+- Necesitas un plan de perfilado y recomendaciones de herramientas (WP-CLI profile/doctor, Query Monitor, Xdebug/XHProf, APMs).
+- Estás optimizando consultas de base de datos, opciones de carga automática (autoload), caché de objetos, tareas cron o llamadas HTTP remotas.
 
-This skill assumes the agent cannot use a browser UI. Prefer WP-CLI, logs, and HTTP requests.
+Esta skill asume que el agente no puede usar una interfaz de navegador. Prefiere WP-CLI, logs y peticiones HTTP.
 
-## Inputs required
+## Entradas requeridas
 
-- Environment and safety: dev/staging/prod, any restrictions (no writes, no plugin installs).
-- How to target the install:
-  - WP root `--path=<path>`
-  - (multisite/site targeting) `--url=<url>`
-- The performance symptom and scope:
-  - which URL/REST route/admin screen
-  - when it happens (always vs sporadic; logged-in vs logged-out)
+- Entorno y seguridad: dev/staging/prod, cualquier restricción (sin escritura, sin instalación de plugins).
+- Cómo identificar la instalación:
+  - Ruta raíz de WP `--path=<ruta>`
+  - (Targeting multisitio/sitio) `--url=<url>`
+- Síntoma de rendimiento y alcance:
+  - Qué URL/ruta REST/pantalla de administración.
+  - Cuándo sucede (siempre vs esporádico; usuario identificado vs visitante).
 
-## Procedure
+## Procedimiento
 
-### 0) Guardrails: measure first, avoid risky ops
+### 0) Medidas de seguridad: medir primero, evitar operaciones arriesgadas
 
-1. Confirm whether you may run write operations (plugin installs, config changes, cache flush).
-2. Pick a reproducible target (URL or REST route) and capture a baseline:
-   - TTFB/time with `curl` if possible
-   - WP-CLI profiling if available
+1. Confirma si puedes ejecutar operaciones de escritura (instalación de plugins, cambios de configuración, limpieza de caché).
+2. Elige un objetivo reproducible (URL o ruta REST) y captura una línea base (baseline):
+   - TTFB/tiempo con `curl` si es posible.
+   - Perfilado con WP-CLI si está disponible.
 
-Read:
+Leer:
 - `references/measurement.md`
 
-### 1) Generate a backend-only performance report (deterministic)
+### 1) Generar un informe de rendimiento solo para backend (determinista)
 
-Run:
+Ejecuta:
 
-- `node skills/wp-performance/scripts/perf_inspect.mjs --path=<path> [--url=<url>]`
+- `node skills/wp-performance/scripts/perf_inspect.mjs --path=<ruta> [--url=<url>]`
 
-This detects:
+Esto detecta:
 
-- WP-CLI availability and core version
-- whether `wp doctor` / `wp profile` are available
-- autoloaded options size (if possible)
-- object-cache drop-in presence
+- Disponibilidad de WP-CLI y versión del núcleo.
+- Si `wp doctor` / `wp profile` están disponibles.
+- Tamaño de las opciones de carga automática (autoload) si es posible.
+- Presencia del drop-in de object-cache.
 
-### 2) Fast wins: run diagnostics before deep profiling
+### 2) Victorias rápidas: ejecutar diagnósticos antes del perfilado profundo
 
-If you have WP-CLI access, prefer:
+Si tienes acceso a WP-CLI, prefiere:
 
 - `wp doctor check`
 
-It catches common production foot-guns (autoload bloat, SAVEQUERIES/WP_DEBUG, plugin counts, updates).
+Detecta errores comunes en producción (exceso de autoload, SAVEQUERIES/WP_DEBUG, exceso de plugins, actualizaciones).
 
-Read:
+Leer:
 - `references/wp-cli-doctor.md`
 
-### 3) Deep profiling (no browser required)
+### 3) Perfilado profundo (sin necesidad de navegador)
 
-Preferred order:
+Orden preferido:
 
-1. `wp profile stage` to see where time goes (bootstrap/main_query/template).
-2. `wp profile hook` (optionally with `--url=`) to find slow hooks/callbacks.
-3. `wp profile eval` for targeted code paths.
+1. `wp profile stage` para ver dónde se va el tiempo (bootstrap/main_query/template).
+2. `wp profile hook` (opcionalmente con `--url=`) para encontrar hooks/callbacks lentos.
+3. `wp profile eval` para rutas de código específicas.
 
-Read:
+Leer:
 - `references/wp-cli-profile.md`
 
-### 4) Query Monitor (backend-only usage)
+### 4) Query Monitor (uso solo en backend)
 
-Query Monitor is normally UI-driven, but it can be used headlessly via REST API response headers and `_envelope` responses:
+Query Monitor suele ser visual, pero puede usarse de forma "headless" mediante las cabeceras de respuesta de la API REST y las respuestas `_envelope`:
 
-- Authenticate (nonce or Application Password).
-- Request REST responses and inspect headers (`x-qm-*`) and/or the `qm` property when using `?_envelope`.
+- Autentícate (nonce o Application Password).
+- Solicita respuestas REST e inspecciona las cabeceras (`x-qm-*`) y/o la propiedad `qm` al usar `?_envelope`.
 
-Read:
+Leer:
 - `references/query-monitor-headless.md`
 
-### 5) Fix by category (choose the dominant bottleneck)
+### 5) Corregir por categoría (elegir el cuello de botella dominante)
 
-Use the profile output to pick *one* primary bottleneck category:
+Usa la salida del perfilado para elegir *una* categoría principal de cuello de botella:
 
-- **DB queries** → reduce query count, fix N+1 patterns, improve indexes, avoid expensive meta queries.
+- **Consultas de BD** → reducir número de consultas, corregir patrones N+1, mejorar índices, evitar consultas de meta costosas.
   - `references/database.md`
-- **Autoloaded options** → identify the biggest autoloaded options and stop autoloading large blobs.
+- **Opciones de carga automática (Autoload)** → identificar las opciones más grandes y desactivar el autoload para blobs grandes.
   - `references/autoload-options.md`
-- **Object cache misses** → introduce caching or fix cache key/group usage; add persistent object cache where appropriate.
+- **Fallos en caché de objetos** → introducir caché o corregir el uso de claves/grupos; añadir caché de objetos persistente donde sea apropiado.
   - `references/object-cache.md`
-- **Remote HTTP calls** → add timeouts, caching, batching; avoid calling remote APIs on every request.
+- **Llamadas HTTP remotas** → añadir timeouts, caché, procesamiento por lotes; evitar llamar a APIs remotas en cada petición.
   - `references/http-api.md`
-- **Cron** → reduce due-now spikes, de-duplicate events, move heavy tasks out of request paths.
+- **Cron** → reducir picos de ejecución, eliminar eventos duplicados, mover tareas pesadas fuera de la ruta de la petición.
   - `references/cron.md`
 
-### 6) Verify (repeat the same measurement)
+### 6) Verificar (repetir la misma medición)
 
-- Re-run the same `wp profile` / `wp doctor` / REST request.
-- Confirm the performance delta and that behavior is unchanged.
-- If the fix is risky, ship behind a feature flag or staged rollout when possible.
+- Vuelve a ejecutar el mismo `wp profile` / `wp doctor` / petición REST.
+- Confirma la diferencia de rendimiento y que el comportamiento no ha cambiado.
+- Si el arreglo es arriesgado, despliega tras un feature flag o de forma escalonada si es posible.
 
-## WordPress 6.9 performance improvements
+## Mejoras de rendimiento en WordPress 6.9
 
-Be aware of these 6.9 changes when profiling:
+Ten en cuenta estos cambios de la versión 6.9 al perfilar:
 
-**On-demand CSS for classic themes:**
-- Classic themes now get on-demand CSS loading (previously only block themes had this).
-- Reduces CSS payload by 30-65% by only loading styles for blocks actually used on the page.
-- If you're profiling a classic theme, this should already be helping.
+**CSS bajo demanda para temas clásicos:**
+- Los temas clásicos ahora cargan CSS bajo demanda (antes solo disponible en temas de bloques).
+- Reduce el peso del CSS entre un 30-65% al cargar solo los estilos de los bloques usados en la página.
 
-**Block themes with no render-blocking resources:**
-- Block themes that don't define custom stylesheets (like Twenty Twenty-Three/Four) can now load with zero render-blocking CSS.
-- Styles come from global styles (theme.json) and separate block styles, all inlined.
-- This significantly improves LCP (Largest Contentful Paint).
+**Temas de bloques sin recursos que bloqueen el renderizado:**
+- Los temas de bloques que no definen hojas de estilo personalizadas pueden cargar con cero CSS bloqueante.
+- Los estilos vienen de estilos globales (theme.json) y estilos de bloques separados, todos integrados (inlined).
+- Esto mejora significativamente el LCP (Largest Contentful Paint).
 
-**Inline CSS limit increased:**
-- The threshold for inlining small stylesheets has been raised, reducing render-blocking resources.
+Referencia: https://make.wordpress.org/core/2025/11/18/wordpress-6-9-frontend-performance-field-guide/
 
-Reference: https://make.wordpress.org/core/2025/11/18/wordpress-6-9-frontend-performance-field-guide/
+## Verificación
 
-## Verification
+- Se capturan números antes y después (mismo entorno, misma URL/ruta).
+- `wp doctor check` está limpio (o ha mejorado).
+- No hay nuevos errores o avisos de PHP en los logs.
+- No se requiere limpieza de caché para el funcionamiento correcto (la limpieza de caché debe ser el último recurso).
 
-- Baseline vs after numbers are captured (same environment, same URL/route).
-- `wp doctor check` is clean (or improved) when applicable.
-- No new PHP errors or warnings in logs.
-- No cache flush is required for correctness (cache flush should be last resort).
+## Modos de fallo / depuración
 
-## Failure modes / debugging
+- "Sin cambios" tras modificar el código:
+  - Mediste una URL/sitio diferente (error en `--url`), las cachés ocultaron los resultados o la caché de opcode está obsoleta.
+- Datos de perfilado inestables:
+  - Elimina tareas en segundo plano, prueba con cachés calientes, ejecuta varias muestras.
+- `SAVEQUERIES`/Query Monitor causa sobrecarga:
+  - No ejecutar en producción a menos que esté aprobado explícitamente.
 
-- “No change” after code changes:
-  - you measured a different URL/site (`--url` mismatch), caches masked results, or opcode cache is stale
-- Profiling data is noisy:
-  - eliminate background tasks, test with warmed caches, run multiple samples
-- `SAVEQUERIES`/Query Monitor causes overhead:
-  - don’t run in production unless explicitly approved
+## Escalado
 
-## Escalation
-
-- If this is production and you don’t have explicit approval, do not:
-  - install plugins, enable `SAVEQUERIES`, run load tests, or flush caches during traffic
-- If you need system-level profiling (APM, PHP profiler extensions), coordinate with ops/hosting.
+- Si es producción y no tienes aprobación explícita, no:
+  - Instales plugins, actives `SAVEQUERIES`, ejecutes pruebas de carga o limpies cachés durante el tráfico.
+- Si necesitas perfilado a nivel de sistema (APM, extensiones de perfilado PHP), coordina con operaciones/hosting.
+ate with ops/hosting.

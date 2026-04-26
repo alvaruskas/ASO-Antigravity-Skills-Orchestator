@@ -1,102 +1,101 @@
 ---
 name: wp-playground
-description: "Use for WordPress Playground workflows: fast disposable WP instances in the browser or locally via @wp-playground/cli (server, run-blueprint, build-snapshot), auto-mounting plugins/themes, switching WP/PHP versions, blueprints, and debugging (Xdebug)."
-compatibility: "Targets WordPress 6.9+ (PHP 7.2.24+). Playground CLI requires Node.js 20.18+; runs WP in WebAssembly with SQLite."
+description: "Usa esta skill para flujos de trabajo con WordPress Playground: instancias rápidas y desechables de WP en el navegador o localmente mediante @wp-playground/cli (servidor, ejecución de Blueprints, creación de snapshots), montaje automático de plugins/temas, cambio de versiones de WP/PHP, Blueprints y depuración (Xdebug)."
+compatibility: "Dirigido a WordPress 6.9+ (PHP 7.2.24+). El CLI de Playground requiere Node.js 20.18+; ejecuta WP en WebAssembly con SQLite."
 category: "⚡ WordPress"
 ---
 
 # WordPress Playground
 
-## When to use
+## Cuándo usar
 
-- Spin up a disposable WordPress to test a plugin/theme without full stack setup.
-- Run or iterate on Playground Blueprints (JSON) locally.
-- Build a reproducible snapshot of a site for sharing or CI.
-- Switch WP/PHP versions quickly to reproduce issues.
-- Debug plugin/theme code with Xdebug in an isolated Playground.
+- Levantar un WordPress desechable para probar un plugin/tema sin configurar todo el stack.
+- Ejecutar o iterar sobre Blueprints de Playground (JSON) de forma local.
+- Crear un snapshot (captura) reproducible de un sitio para compartirlo o usarlo en CI.
+- Cambiar versiones de WP/PHP rápidamente para reproducir errores.
+- Depurar código de plugins/temas con Xdebug en un entorno aislado de Playground.
 
-## Inputs required
+## Entradas requeridas
 
-- Host machine readiness: Node.js ≥ 20.18, `npm`/`npx` available.
-- Project path to mount (`--auto-mount` or explicit mount mapping).
-- Desired WP version/PHP version (optional; defaults to latest WP, PHP 8.3).
-- Blueprint location/URL if running a blueprint.
-- Port preference if 9400 conflicts.
-- Whether Xdebug is needed.
+- Preparación de la máquina: Node.js ≥ 20.18, disponibilidad de `npm`/`npx`.
+- Ruta del proyecto a montar (`--auto-mount` o mapeo explícito).
+- Versión deseada de WP/PHP (opcional; por defecto la última de WP y PHP 8.3).
+- Ubicación/URL del Blueprint si se está ejecutando uno.
+- Preferencia de puerto si el 9400 está en uso.
+- Confirmación de si se necesita Xdebug.
 
-## Procedure
+## Procedimiento
 
-### 0) Guardrails
+### 0) Medidas de seguridad
 
-- Playground instances are ephemeral and SQLite-backed; **never** point at production data.
-- Confirm Node ≥ 20.18 (`node -v`) before running CLI.
-- If mounting local code, ensure it is clean of secrets; Playground copies files into an in-memory FS.
+- Las instancias de Playground son efímeras y usan SQLite; **nunca** las conectes a datos de producción.
+- Confirma Node ≥ 20.18 (`node -v`) antes de ejecutar el CLI.
+- Si montas código local, asegúrate de que no contenga secretos; Playground copia los archivos a un sistema de archivos en memoria.
 
-### 1) Quick local spin-up (auto-mount)
+### 1) Inicio rápido local (auto-mount)
 
 ```bash
-cd <plugin-or-theme-root>
+cd <raiz-del-plugin-o-tema>
 npx @wp-playground/cli@latest server --auto-mount
 ```
-- Opens on http://localhost:9400 by default. Auto-detects plugin/theme and installs it.
-- Add `--wp=<version>` / `--php=<version>` as needed.
-- For classic full installs already present, add `--skip-wordpress-setup` and mount the whole tree.
+- Se abre en http://localhost:9400 por defecto. Detecta automáticamente el plugin/tema y lo instala.
+- Añade `--wp=<version>` / `--php=<version>` según sea necesario.
+- Para instalaciones clásicas completas ya existentes, añade `--skip-wordpress-setup` y monta el árbol completo.
 
-### 2) Manual mounts or multiple mounts
+### 2) Montajes manuales o múltiples
 
-- Use `--mount=/host/path:/vfs/path` (repeatable) when auto-mount is insufficient (multi-plugin, mu-plugins, custom content).
-- Mount before install with `--mount-before-install` for bootstrapping installer flows.
-- Reference: `references/cli-commands.md`
+- Usa `--mount=/ruta/host:/ruta/vfs` (repetible) cuando el auto-montaje no sea suficiente (varios plugins, mu-plugins, contenido personalizado).
+- Monta antes de la instalación con `--mount-before-install` para flujos de instaladores de arranque.
+- Referencia: `references/cli-commands.md`
 
-### 3) Run a Blueprint (no server needed)
-
-```bash
-npx @wp-playground/cli@latest run-blueprint --blueprint=<file-or-url>
-```
-- Use for scripted setup/CI validation. Supports remote URLs and local files.
-- Allow bundled assets in local blueprints with `--blueprint-may-read-adjacent-files` when required.
-- See `references/blueprints.md` for structure and common flags.
-
-### 4) Build a snapshot for sharing
+### 3) Ejecutar un Blueprint (sin necesidad de servidor)
 
 ```bash
-npx @wp-playground/cli@latest build-snapshot --blueprint=<file> --outfile=./site.zip
+npx @wp-playground/cli@latest run-blueprint --blueprint=<archivo-o-url>
 ```
-- Produces a ZIP you can load in Playground or attach to bug reports.
+- Úsalo para validaciones en CI o configuraciones mediante scripts. Soporta URLs remotas y archivos locales.
+- Permite que los Blueprints locales lean archivos adyacentes con `--blueprint-may-read-adjacent-files` cuando sea necesario.
+- Ver `references/blueprints.md` para la estructura y flags comunes.
 
-### 5) Debugging with Xdebug
+### 4) Crear un snapshot para compartir
 
-- Start with `--xdebug` (or `--enable-xdebug` depending on CLI release) to expose an IDE key, then connect VS Code/PhpStorm to the host/port shown in CLI output.
-- Combine with `--auto-mount` for plugin/theme debugging.
+```bash
+npx @wp-playground/cli@latest build-snapshot --blueprint=<archivo> --outfile=./sitio.zip
+```
+- Genera un ZIP que puedes cargar en Playground o adjuntar a informes de errores.
+
+### 5) Depuración con Xdebug
+
+- Inicia con `--xdebug` (o `--enable-xdebug` según la versión del CLI) para exponer una clave de IDE, luego conecta VS Code/PhpStorm al host/puerto mostrado.
+- Combínalo con `--auto-mount` para depurar plugins/temas.
 - Checklist: `references/debugging.md`
 
-### 6) Version switching
+### 6) Cambio de versiones
 
-- Use `--wp=` to pin WP (e.g., 6.9.0) and `--php=` to test compatibility.
-- If feature depends on Gutenberg trunk, prefer the latest WP release plus plugin if available; Playground images track stable WP plus bundled Gutenberg.
+- Usa `--wp=` para fijar la versión de WP (ej. 6.9.0) y `--php=` para probar compatibilidad.
+- Si una funcionalidad depende del trunk de Gutenberg, prefiere la última versión de WP más el plugin si está disponible.
 
-### 7) Browser-only workflows (no CLI)
+### 7) Flujos solo en navegador (sin CLI)
 
-- Launch quick previews with URL fragments or query params:
-  - Fragment: `https://playground.wordpress.net/#<base64-or-json-blueprint>`
-  - Query: `https://playground.wordpress.net/?blueprint-url=<public-url-or-zip>`
-- Use the live Blueprint Editor (playground.wordpress.net) to author blueprints with schema help; paste JSON and copy a shareable link.
+- Lanza previsualizaciones rápidas con fragmentos de URL o parámetros:
+  - Fragmento: `https://playground.wordpress.net/#<blueprint-en-base64-o-json>`
+  - Consulta: `https://playground.wordpress.net/?blueprint-url=<url-publica-o-zip>`
+- Usa el Editor de Blueprints en vivo (playground.wordpress.net) para crear Blueprints con ayuda de esquema; pega el JSON y copia el enlace para compartir.
 
-## Verification
+## Verificación
 
-- Verify mounted code is active (plugin listed/active; theme selected).
-- For blueprints/snapshots, re-run with `--verbosity=debug` to confirm steps executed.
-- Run targeted smoke (e.g., `wp plugin list` inside Playground shell via browser terminal if exposed) or UI click-path.
+- Verifica que el código montado esté activo (plugin listado/activo; tema seleccionado).
+- Para Blueprints/snapshots, vuelve a ejecutar con `--verbosity=debug` para confirmar los pasos ejecutados.
+- Ejecuta pruebas básicas (ej. `wp plugin list` dentro de la terminal de Playground en el navegador si está expuesta).
 
-## Failure modes / debugging
+## Modos de fallo / depuración
 
-- **CLI exits complaining about Node**: upgrade to ≥ 20.18.
-- **Mount not applied**: check path, use absolute path, add `--verbosity=debug`.
-- **Blueprint cannot read local assets**: add `--blueprint-may-read-adjacent-files`.
-- **Port already used**: `--port=<free-port>`.
-- **Slow/locked UI**: disable `--experimental-multi-worker` if enabled; or enable it to improve throughput on CPU-bound runs.
+- **El CLI sale quejándose de Node**: actualiza a ≥ 20.18.
+- **Montaje no aplicado**: comprueba la ruta, usa rutas absolutas, añade `--verbosity=debug`.
+- **El Blueprint no puede leer activos locales**: añade `--blueprint-may-read-adjacent-files`.
+- **Puerto ya en uso**: usa `--port=<puerto-libre>`.
 
-## Escalation
+## Escalado
 
-- If PHP extensions or native DB access are required, Playground may be unsuitable; fall back to full WP stack or wp-env/Docker.
-- For browser-only embedding or VS Code extension specifics, consult the upstream docs: https://wordpress.github.io/wordpress-playground/
+- Si se requieren extensiones de PHP o acceso nativo a BD, Playground puede no ser adecuado; recurre a un stack completo de WP o wp-env/Docker.
+- Para integración solo en navegador o detalles específicos de la extensión de VS Code, consulta la documentación oficial: https://wordpress.github.io/wordpress-playground/

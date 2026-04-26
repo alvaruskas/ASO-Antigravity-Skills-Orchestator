@@ -1,98 +1,98 @@
 ---
 name: wp-phpstan
-description: "Use when configuring, running, or fixing PHPStan static analysis in WordPress projects (plugins/themes/sites): phpstan.neon setup, baselines, WordPress-specific typing, and handling third-party plugin classes."
-compatibility: "Targets WordPress 6.9+ (PHP 7.2.24+). Requires Composer-based PHPStan."
+description: "Usa esta skill al configurar, ejecutar o corregir el análisis estático de PHPStan en proyectos de WordPress (plugins/temas/sitios): configuración de `phpstan.neon`, archivos baseline, tipado específico de WordPress y manejo de clases de plugins de terceros."
+compatibility: "Dirigido a WordPress 6.9+ (PHP 7.2.24+). Requiere PHPStan basado en Composer."
 category: ["WP MCP", "wordpress"]
 ---
 
 # WP PHPStan
 
-## When to use
+## Cuándo usar
 
-Use this skill when working on PHPStan in a WordPress codebase, for example:
+Usa esta skill cuando trabajes con PHPStan en una base de código de WordPress, por ejemplo:
 
-- setting up or updating `phpstan.neon` / `phpstan.neon.dist`
-- generating or updating `phpstan-baseline.neon`
-- fixing PHPStan errors via WordPress-friendly PHPDoc (REST requests, hooks, query results)
-- handling third-party plugin/theme classes safely (stubs/autoload/targeted ignores)
+- Configurar o actualizar `phpstan.neon` / `phpstan.neon.dist`.
+- Generar o actualizar `phpstan-baseline.neon`.
+- Corregir errores de PHPStan mediante PHPDoc compatible con WordPress (peticiones REST, hooks, resultados de consultas).
+- Manejar de forma segura clases de plugins/temas de terceros (stubs/autoload/ignorar errores específicos).
 
-## Inputs required
+## Entradas requeridas
 
-- `wp-project-triage` output (run first if you haven't)
-- Whether adding/updating Composer dev dependencies is allowed (stubs).
-- Whether changing the baseline is allowed for this task.
+- Salida de `wp-project-triage` (ejecútalo primero si no lo has hecho).
+- Confirmación de si se permite añadir/actualizar dependencias dev de Composer (stubs).
+- Confirmación de si se permite cambiar el baseline para esta tarea.
 
-## Procedure
+## Procedimiento
 
-### 0) Discover PHPStan entrypoints (deterministic)
-1. Inspect PHPStan setup (config, baseline, scripts):
+### 0) Descubrir puntos de entrada de PHPStan (determinista)
+1. Inspecciona la configuración de PHPStan (config, baseline, scripts):
    - `node skills/wp-phpstan/scripts/phpstan_inspect.mjs`
 
-Prefer the repo’s existing `composer` script (e.g. `composer run phpstan`) when present.
+Prefiere el script de `composer` existente en el repositorio (ej. `composer run phpstan`) cuando esté presente.
 
-### 1) Ensure WordPress core stubs are loaded
+### 1) Asegurar que los stubs del núcleo de WordPress estén cargados
 
-`szepeviktor/phpstan-wordpress` or `php-stubs/wordpress-stubs` are effectively required for most WordPress plugin/theme repos. Without it, expect a high volume of errors about unknown WordPress core functions.
+`szepeviktor/phpstan-wordpress` o `php-stubs/wordpress-stubs` son prácticamente obligatorios para la mayoría de repositorios de plugins/temas de WordPress. Sin ellos, espera un gran volumen de errores sobre funciones desconocidas del núcleo.
 
-- Confirm the package is installed (see `composer.dependencies` in the inspect report).
-- Ensure the PHPStan config references the stubs (see `references/third-party-classes.md`).
+- Confirma que el paquete está instalado (mira `composer.dependencies` en el informe de inspección).
+- Asegúrate de que la configuración de PHPStan referencia los stubs (ver `references/third-party-classes.md`).
 
-### 2) Ensure a sane `phpstan.neon` for WordPress projects
+### 2) Asegurar un `phpstan.neon` coherente para proyectos WordPress
 
-- Keep `paths` focused on first-party code (plugin/theme directories).
-- Exclude generated and vendored code (`vendor/`, `node_modules/`, build artifacts, tests unless explicitly analyzed).
-- Keep `ignoreErrors` entries narrow and documented.
+- Mantén `paths` enfocado en el código propio (directorios de plugins/temas).
+- Excluye código generado o de terceros (`vendor/`, `node_modules/`, archivos de build, tests a menos que se analicen explícitamente).
+- Mantén las entradas de `ignoreErrors` lo más específicas posible y documentadas.
 
-See:
+Ver:
 - `references/configuration.md`
 
-### 3) Fix errors with WordPress-specific typing (preferred)
+### 3) Corregir errores con tipado específico de WordPress (preferido)
 
-Prefer correcting types over ignoring errors. Common WP patterns that need help:
+Prefiere corregir los tipos antes que ignorar los errores. Patrones comunes de WP que necesitan ayuda:
 
-- REST endpoints: type request parameters using `WP_REST_Request<...>`
-- Hook callbacks: add accurate `@param` types for callback args
-- Database results and iterables: use array shapes or object shapes for query results
-- Action Scheduler: type `$args` array shapes for job callbacks
+- Endpoints REST: tipar parámetros de la petición usando `WP_REST_Request<...>`
+- Callbacks de Hook: añadir tipos `@param` precisos para los argumentos del callback.
+- Resultados de DB e iterables: usar array shapes u object shapes para los resultados de consultas.
+- Action Scheduler: tipar array shapes de `$args` para los callbacks de tareas.
 
-See:
+Ver:
 - `references/wordpress-annotations.md`
 
-### 4) Handle third-party plugin/theme classes (only when needed)
+### 4) Manejar clases de plugins/temas de terceros (solo cuando sea necesario)
 
-When integrating with plugins/themes not present in the analysis environment:
+Al integrar con plugins/temas que no están presentes en el entorno de análisis:
 
-- First, confirm the dependency is real (installed/required).
-- Prefer plugin-specific stubs already used in the repo (common examples: `php-stubs/woocommerce-stubs`, `php-stubs/acf-pro-stubs`).
-- If PHPStan still cannot resolve classes, add targeted `ignoreErrors` patterns for the specific vendor prefix.
+- Primero, confirma que la dependencia es real (instalada/requerida).
+- Prefiere stubs específicos de plugins ya usados en el repo (ejemplos comunes: `php-stubs/woocommerce-stubs`, `php-stubs/acf-pro-stubs`).
+- Si PHPStan aún no puede resolver las clases, añade patrones de `ignoreErrors` dirigidos al prefijo específico del desarrollador.
 
-See:
+Ver:
 - `references/third-party-classes.md`
 
-### 5) Baseline management (use as a migration tool, not a trash bin)
+### 5) Gestión del baseline (usar como herramienta de migración, no como papelera)
 
-- Generate a baseline once for legacy code, then reduce it over time.
-- Do not “baseline” newly introduced errors.
+- Genera un baseline una vez para el código antiguo (legacy) y redúcelo con el tiempo.
+- No añadidas errores nuevos al baseline.
 
-See:
+Ver:
 - `references/configuration.md`
 
-## Verification
+## Verificación
 
-- Run PHPStan using the discovered command (`composer run ...` or `vendor/bin/phpstan analyse`).
-- Confirm the baseline file (if used) is included and didn’t grow unexpectedly.
-- Re-run after changing `ignoreErrors` to ensure patterns are not masking unrelated issues.
+- Ejecuta PHPStan usando el comando descubierto (`composer run ...` o `vendor/bin/phpstan analyse`).
+- Confirma que el archivo baseline (si se usa) está incluido y no ha crecido inesperadamente.
+- Vuelve a ejecutar tras cambiar `ignoreErrors` para asegurar que los patrones no están ocultando problemas no relacionados.
 
-## Failure modes / debugging
+## Modos de fallo / depuración
 
-- “Class not found”:
-  - confirm autoloading/stubs, or add a narrow ignore pattern
-- Huge error counts after enabling PHPStan:
-  - reduce `paths`, add `excludePaths`, start at a lower level, then ratchet up
-- Inconsistent types around hooks / REST params:
-  - add explicit PHPDoc (see references) rather than runtime guards
+- "Class not found":
+  - Confirma autoloading/stubs, o añade un patrón de ignore específico.
+- Recuento de errores enorme tras activar PHPStan:
+  - Reduce `paths`, añade `excludePaths`, empieza en un nivel más bajo y ve subiendo.
+- Tipos inconsistentes en hooks / parámetros REST:
+  - Añade PHPDoc explícito (ver referencias) en lugar de comprobaciones en tiempo de ejecución.
 
-## Escalation
+## Escalado
 
-- If a type depends on a third-party plugin API you can’t confirm, ask for the dependency version or source before inventing types.
-- If fixing requires adding new Composer dependencies (stubs/extensions), confirm it with the user first.
+- Si un tipo depende de una API de un plugin de terceros que no puedes confirmar, pide la versión de la dependencia o la fuente antes de inventar tipos.
+- Si la corrección requiere añadir nuevas dependencias de Composer (stubs/extensiones), confírmalo con el usuario primero.
