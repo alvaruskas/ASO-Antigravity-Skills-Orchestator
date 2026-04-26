@@ -3,33 +3,40 @@
 
 # --- PERMITIR (Whitelist) ---
 
-# Metodología y Scripts (Solo lógica, no directivas)
+# Carpetas (necesario permitir la carpeta para entrar en ella)
 !scripts/
-!requirements.txt
-!.gitignore
-!.env.example
-
-# La Aplicación (ASO)
 !aso-app-codigo-fuente/
+!Antigravity/
 !backend/
 !frontend/
-
-# Instaladores
-!setup.sh
-!start_aso.sh
-
-# Skills y Bóveda
 !skills/
 !skills-library/
 !vault/
-!skills-lock.json
-
-# Documentación (con assets para el README)
-!README.md
+!Biblioteca/
 !docs/
 
-# --- EXCEPCIONES DENTRO DE CARPETAS PERMITIDAS ---
-# Ignorar dependencias y temporales
+# Archivos específicos en raíz
+!requirements.txt
+!.gitignore
+!.env.example
+!setup.sh
+!start_aso.sh
+!skills-lock.json
+!README.md
+
+# Permitir recursivamente todo lo que hay dentro de las carpetas permitidas
+!scripts/**
+!aso-app-codigo-fuente/**
+!Antigravity/**
+!backend/**
+!frontend/**
+!skills/**
+!skills-library/**
+!vault/**
+!Biblioteca/**
+!docs/**
+
+# --- EXCEPCIONES (Lo que SIEMPRE ignoramos) ---
 **/node_modules/
 **/dist/
 **/.vite/
@@ -39,6 +46,4 @@
 .agents/
 .venv/
 .env
-
-# Ignorar Directivas (Memoria local únicamente)
 directivas/
