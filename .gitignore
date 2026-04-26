@@ -3,8 +3,7 @@
 
 # --- PERMITIR (Whitelist) ---
 
-# Metodología y Memoria (Zero Amnesia)
-!directivas/
+# Metodología y Scripts (Solo lógica, no directivas)
 !scripts/
 !requirements.txt
 !.gitignore
@@ -40,3 +39,6 @@
 .agents/
 .venv/
 .env
+
+# Ignorar Directivas (Memoria local únicamente)
+directivas/
