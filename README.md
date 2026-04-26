@@ -99,6 +99,7 @@ La aplicación se abrirá automáticamente en `http://localhost:5174`.
 | `⚡ WordPress` | Gestión de plugins, temas, performance y SEO. |
 | `🎨 Diseño & UI` | Componentes premium, animaciones y UX. |
 | `🤖 IA & Agentes` | Arquitectura de prompts y gestión de NotebookLM. |
+| `🎥 Multimedia` | Automatización de vídeo, subtitulación y transiciones. |
 | `🔄 Automatización` | Flujos de n8n, APIs de Meta y Webhooks. |
 
 ---
@@ -109,21 +110,24 @@ La aplicación se abrirá automáticamente en `http://localhost:5174`.
 | :--- | :--- | :--- |
 | `📦 Otros` | **agent-browser** | Navegación web asistida por agente. Permite al agente controlar el navegador para búsquedas, scraping y validación visual de páginas. |
 | `📦 Otros` | **blueprint** | Úsalo al crear, editar o revisar archivos JSON de Blueprints de WordPress Playground. Se activa al mencionar blueprints, configuración de playground o solicitudes para configurar un entorno de demostración de WordPress. |
+| `📦 Otros` | **email-signature-generator** | Sistema de automatización de firmas de identidad para emails, optimizado para Outlook y gestión de activos corporativos. |
 | `📦 Otros` | **font-to-web-converter** | Convierte fuentes locales (TTF/OTF) a formatos web optimizados (WOFF2) y genera automáticamente el CSS @font-face necesario. |
 | `📦 Otros` | **pdf-manager** | Herramienta experta en la gestión técnica de documentos PDF. Permite unir, dividir y extraer información de archivos PDF de forma automatizada. |
 | `📦 Otros` | **redsys-refund-manager** | Gestiona reembolsos parciales en WooCommerce (v3) de forma segura a través de la pasarela Redsys de José Conti, previniendo descuadres fiscales y manejando los errores específicos de la terminal bancaria. |
 | `📦 Otros` | **skill-scanner** | Escanea los proyectos para detectar tecnologías y recomendar las skills más relevantes basadas en el contexto. |
 | `📦 Otros` | **skill-validator** | Valida la estructura e integridad de un paquete de skill. |
-| `📦 Otros` | **video-crossfade-generator** | Generador de transiciones crossfade (fundidos cruzados) avanzados para edición de vídeo automatizada e integración fluida. |
-| `📦 Otros` | **video-reverser** | Herramienta de automatización para invertir y rebobinar clips de vídeo mediante procesamiento directo. |
-| `📦 Otros` | **video-subtitler** | Genera subtítulos y leyendas para videos usando la IA de each::sense. Crea subtítulos autogenerados, leyendas multi-idioma, texto animado estilo TikTok, exportaciones SRT/VTT, diarización de hablantes y subtítulos incrustados. |
 | `📦 Otros` | **wordpress-pages** | Creación y actualización de páginas informativas y legales en WordPress via REST API. |
+| `🎥 Multimedia` | **video-crossfade-generator** | Generador de transiciones crossfade (fundidos cruzados) avanzados para edición de vídeo automatizada e integración fluida. |
+| `🎥 Multimedia` | **video-reverser** | Herramienta de automatización para invertir y rebobinar clips de vídeo mediante procesamiento directo. |
+| `🎥 Multimedia` | **video-subtitler** | Genera subtítulos y leyendas para videos usando la IA de each::sense. Crea subtítulos autogenerados, leyendas multi-idioma, texto animado estilo TikTok, exportaciones SRT/VTT, diarización de hablantes y subtítulos incrustados. |
 | `🎨 Diseño & UI` | **experto-pixel-meta** | Especialista en la configuración y optimización del Píxel de Meta (Facebook Pixel) y Conversion API (CAPI) para eventos estándar y personalizados de eCommerce. |
 | `🎨 Diseño & UI` | **premium-store-locator** | Diseño e implementación de contenedores web de alta gama basados en brutalismo arquitectónico, asimetría y tipografía premium. |
 | `🎨 Diseño & UI` | **stitch-ui-design** | Especialista en diseño de interfaces y sistemas de diseño utilizando la herramienta Stitch. Crea componentes modernos, minimalistas y de alto impacto visual. |
 | `🎨 Diseño & UI` | **ui-ux-pro-max** | Especialista en diseño de interfaces y experiencias de usuario de alta fidelidad. Domina tendencias como Bento Grids, Glassmorphism y tipografía moderna. |
 | `🎨 Diseño & UI` | **web-animations-pro** | Especialista en animaciones web de alto nivel. Con experiencia en herramientas como GSAP, Framer Motion y Three.js, crea experiencias inmersivas con un enfoque en el rendimiento optimizado. |
 | `⚡ WordPress` | **elementor-html-master** | Generador experto de código HTML/CSS/JS optimizado para el widget HTML de Elementor. Diseños premium, "shadow-free" y totalmente adaptables. |
+| `⚡ WordPress` | **rankmath-seo-pro** | Optimización SEO avanzada para WordPress utilizando RankMath. Gestión de esquemas, redirecciones y análisis de contenido. |
+| `⚡ WordPress` | **woocommerce-reports-dashboard** | Cuadros de mando y reportes avanzados para WooCommerce. Análisis de ventas, clientes y rendimiento de productos. |
 | `⚡ WordPress` | **wordpress-local** | Gestión avanzada de entornos locales de WordPress utilizando WP-CLI y herramientas de automatización. |
 | `⚡ WordPress` | **wordpress-performance-best-practices** | Guía de optimización de rendimiento WordPress para plugins, temas y código personalizado. Mejores prácticas de WP_Query, caché y REST API. |
 | `⚡ WordPress` | **wordpress-pro** | Especialista en el ecosistema WordPress. Conocimiento avanzado de hooks, REST API y arquitectura de plugins/temas. |
@@ -162,6 +166,7 @@ La aplicación se abrirá automáticamente en `http://localhost:5174`.
 | `🖥️ Desarrollo Web` | **tauri-puertocabrera-expert** | Especialista en el Monolito Modular Tauri + Rust + React para la app "Consola IG Puerto Cabrera" (Local-First). Incluye las mejores prácticas para asincronía (tokio), seguridad y comunicación nativa. |
 | `🛠️ Metodología` | **concise-planning** | Genera una lista de tareas atómica, clara y accionable antes de programar. Úsala para planificar nuevas funcionalidades. |
 | `🛠️ Metodología` | **git-pushing** | Usa las etapas, los commit y las empujes de cambios Git utilizando mensajes de commite convencionales. Utiliza esto cuando el usuario desea hacer un commit y empujar los cambios o guardar su trabajo en un repositorio remoto. |
+| `🛠️ Metodología` | **github-manager** | Gestión robusta de tokens de GitHub y flujos de trabajo automatizados para el mantenimiento de repositorios. |
 | `🛠️ Metodología` | **github-pro** | Automatización integral del flujo de trabajo en GitHub. Genera automáticamente PRs, gestiona ramas y mantiene el historial limpio. |
 | `🛠️ Metodología` | **github-readme-expert** | Experto en creación de archivos README.md profesionales para repositorios. Estructura, redacta y optimiza documentación técnica de primer nivel. |
 | `🛠️ Metodología` | **github-release-manager** | Orquestador experto de despliegues en GitHub. Aplica buenas prácticas de versionado semántico, changelogs y publicación de releases. |
