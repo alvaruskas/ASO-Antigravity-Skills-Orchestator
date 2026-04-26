@@ -1,57 +1,130 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
 @import "tailwindcss";
 
+:root {
+  /* Dark Mode Variables (Default ASO) */
+  --bg-app: #0e1320;
+  --bg-sidebar: rgba(14, 19, 32, 0.95);
+  --bg-card: #161b29;
+  --bg-card-hover: #252a38;
+  --bg-input: #090e1b;
+  --text-main: #dee2f5;
+  --text-muted: #839493;
+  --text-subtle: #6b7b7a;
+  --text-strong: #ffffff;
+  --border-main: rgba(58, 74, 73, 0.3);
+  --border-strong: rgba(58, 74, 73, 0.5);
+  --border-neon: rgba(0, 251, 251, 0.5);
+  
+  --primary-neon: #00fbfb;
+  --primary-neon-muted: rgba(0, 251, 251, 0.2);
+  --primary-neon-glow: rgba(0, 251, 251, 0.1);
+  --primary-neon-glow-strong: rgba(0, 251, 251, 0.4);
+  
+  --primary-dark: #007070;
+  
+  --bg-tab-active: rgba(0, 112, 112, 0.3);
+  
+  --accent-purple: #9b51e0;
+  --accent-purple-text: #d4b3ff;
+  --accent-purple-bg: rgba(27, 21, 45, 0.8);
+  --accent-purple-border: rgba(155, 81, 224, 0.5);
+
+  --danger: #ff4444;
+  --danger-bg: rgba(255, 68, 68, 0.1);
+  --danger-border: rgba(255, 68, 68, 0.3);
+
+  --shadow-color: rgba(0,0,0,0.4);
+}
+
+.light-mode {
+  /* Light Mode Variables */
+  --bg-app: #f4f6f8;
+  --bg-sidebar: rgba(255, 255, 255, 0.95);
+  --bg-card: #ffffff;
+  --bg-card-hover: #f0f4f4;
+  --bg-input: #ffffff;
+  --text-main: #2c3e50;
+  --text-muted: #64748b;
+  --text-subtle: #94a3b8;
+  --text-strong: #0f172a;
+  --border-main: rgba(100, 116, 139, 0.2);
+  --border-strong: rgba(100, 116, 139, 0.4);
+  --border-neon: rgba(0, 150, 150, 0.5);
+  
+  --primary-neon: #008080;
+  --primary-neon-muted: rgba(0, 128, 128, 0.1);
+  --primary-neon-glow: rgba(0, 128, 128, 0.05);
+  --primary-neon-glow-strong: rgba(0, 128, 128, 0.2);
+  
+  --primary-dark: #e0f2f1;
+  
+  --bg-tab-active: rgba(0, 128, 128, 0.1);
+  
+  --accent-purple: #7e22ce;
+  --accent-purple-text: #581c87;
+  --accent-purple-bg: rgba(243, 232, 255, 0.8);
+  --accent-purple-border: rgba(126, 34, 206, 0.3);
+
+  --danger: #ef4444;
+  --danger-bg: rgba(239, 68, 68, 0.1);
+  --danger-border: rgba(239, 68, 68, 0.3);
+
+  --shadow-color: rgba(0,0,0,0.05);
+}
+
 body {
-    background-color: #0e1320;
-    color: #dee2f5;
+    background-color: var(--bg-app);
+    color: var(--text-main);
     font-family: 'Inter', sans-serif;
     margin: 0;
     -webkit-font-smoothing: antialiased;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* Glassmorphism Classes */
 .glass-panel {
-    background: rgba(48, 52, 67, 0.4);
+    background: var(--bg-sidebar);
     backdrop-filter: blur(20px);
-    border: 1px solid rgba(58, 74, 73, 0.15);
+    border: 1px solid var(--border-main);
 }
 
 .glass-card {
-    background: #161b29;
-    border: 1px solid rgba(58, 74, 73, 0.15);
+    background: var(--bg-card);
+    border: 1px solid var(--border-main);
     transition: all 0.3s ease;
 }
 
 .glass-card:hover {
-    background: #252a38;
-    box-shadow: 0px 12px 32px rgba(0, 2FB, 2FB, 0.04);
+    background: var(--bg-card-hover);
+    box-shadow: 0px 12px 32px var(--primary-neon-glow);
 }
 
 /* Neon Glows */
 .neon-border {
-    border-bottom: 1px solid #00fbfb;
+    border-bottom: 1px solid var(--primary-neon);
 }
 
 .neon-text {
-    color: #00fbfb;
+    color: var(--primary-neon);
 }
 
 .neon-button {
-    background: linear-gradient(45deg, #0e1320, #007070);
-    border: 1px solid #00fbfb;
-    color: #ffffff;
+    background: linear-gradient(45deg, var(--bg-app), var(--primary-dark));
+    border: 1px solid var(--primary-neon);
+    color: var(--text-strong);
     transition: all 0.2s ease;
 }
 
 .neon-button:hover {
-    box-shadow: 0 0 15px rgba(0, 251, 251, 0.4);
+    box-shadow: 0 0 15px var(--primary-neon-glow-strong);
 }
 
 /* Quick toggle styles */
 .toggle-checkbox:checked {
-  background-color: #00fbfb;
-  border-color: #00fbfb;
+  background-color: var(--primary-neon);
+  border-color: var(--primary-neon);
 }
 .toggle-checkbox:checked + .toggle-label {
-  background-color: #007070;
+  background-color: var(--primary-dark);
 }

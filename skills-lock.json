@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "skills": {
+    "subtitle-generation": {
+      "source": "eachlabs/skills",
+      "sourceType": "github",
+      "computedHash": "918a58e999b7b987e5440d43f25cdb134b6b96ab55f969057abc953289714e63"
+    }
+  }
+}

@@ -1,0 +1,436 @@
+<!-- 
+    WIDGET PREMIUM STORE LOCATOR - "DIGITAL SOMMELIER" v4.0
+    Concept: The Optimal Formula (Form + List + Map)
+    Design Strategy: Architectural Brutalism / No-Line Protocol
+    Logic: Real Geocoding + Proximity Sorting + Bidirectional Sync
+-->
+
+<!-- 1. Estándares y Dependencias -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&family=Manrope:wght@200..800&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<!-- 2. Configuración de Diseño (Tokens) -->
+<script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: {
+                    "ds-primary": "#BDC8D1",
+                    "ds-secondary": "#CFC6AB", // Gold Muted
+                    "ds-surface": "#121416",   // Black Absolute (Layer 0)
+                    "ds-surface-low": "#1A1C1E", // Dark Gray (Layer 1 - Sidebar)
+                    "ds-surface-high": "#242E35", // Active/Hover (Layer 2)
+                    "ds-on-surface": "#FFFFFF",
+                    "ds-on-variant": "#8E9DA8"
+                },
+                fontFamily: {
+                    "display": ["Newsreader", "serif"],
+                    "data": ["Manrope", "sans-serif"]
+                }
+            }
+        }
+    }
+</script>
+
+<style>
+    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 200, 'GRAD' 0, 'opsz' 24; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    
+    body { font-family: 'Manrope', sans-serif; background-color: #121416; color: #FFFFFF; margin: 0; }
+    #masos-map { height: 100%; width: 100%; z-index: 1; background: #121416; }
+    
+    /* NO-LINE PROTOCOL: No borders, only surfaces and shadows */
+    .ds-sidebar {
+        box-shadow: 40px 0 80px rgba(0,0,0,0.8);
+    }
+    
+    .ds-input-wrapper {
+        background: #242E35;
+        transition: background 300ms ease;
+    }
+    .ds-input-wrapper:focus-within {
+        background: #2D3941;
+    }
+
+    /* Store Cards - Brutalist Depth */
+    .store-item { 
+        transition: all 400ms cubic-bezier(0.4, 0, 0.2, 1);
+        padding: 2.5rem 2.5rem; /* Large padding for architectural air */
+        background: transparent;
+    }
+    .store-item:hover { background: rgba(36, 46, 53, 0.3); }
+    .store-item.active { 
+        background: #242E35;
+        position: relative;
+    }
+    /* Accent bar instead of border */
+    .store-item.active::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 2rem;
+        bottom: 2rem;
+        width: 3px;
+        background: #CFC6AB;
+    }
+
+    /* Headlines */
+    .ds-title { font-family: 'Newsreader', serif; letter-spacing: -0.03em; }
+    
+    /* Leaflet Overrides */
+    .leaflet-container { font-family: 'Manrope', sans-serif !important; }
+    .ds-popup .leaflet-popup-content-wrapper {
+        background: #242E35 !important;
+        color: white !important;
+        border-radius: 0 !important;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.5) !important;
+        padding: 0 !important;
+    }
+    .ds-popup .leaflet-popup-tip { background: #242E35 !important; }
+
+    /* Custom Markers */
+    .pin-premium {
+        width: 12px;
+        height: 12px;
+        background: #CFC6AB;
+        border-radius: 50%;
+        box-shadow: 0 0 0 4px rgba(207, 198, 171, 0.2);
+    }
+    .pin-premium.active {
+        box-shadow: 0 0 0 8px rgba(207, 198, 171, 0.4);
+        transform: scale(1.2);
+    }
+    
+    @keyframes pulse {
+        0% { box-shadow: 0 0 0 0 rgba(207, 198, 171, 0.4); }
+        70% { box-shadow: 0 0 0 20px rgba(207, 198, 171, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(207, 198, 171, 0); }
+    }
+    .active-marker .pin-premium {
+        animation: pulse 2s infinite;
+        background: #FFFFFF;
+    }
+</style>
+
+<!-- 3. UI Widget (35/65 Asymmetry) -->
+<div class="masos-locator-v4 flex flex-col lg:flex-row h-[100dvh] w-full bg-ds-surface overflow-hidden">
+    
+    <!-- Sidebar: 35% Weight -->
+    <aside class="w-full lg:w-[35%] flex flex-col h-full bg-ds-surface-low z-20 ds-sidebar overflow-hidden">
+        
+        <!-- Header & Form -->
+        <div class="p-10 lg:p-16 pb-12">
+            <h1 class="text-6xl lg:text-7xl ds-title font-light text-ds-on-surface mb-6 leading-[0.85] tracking-tight">
+                Digital Sommelier
+            </h1>
+            <p class="text-ds-on-variant font-data text-[12px] mb-12 leading-relaxed font-medium uppercase tracking-[0.25em] opacity-60">
+                Localiza tu bodega o restaurante más cercano.
+            </p>
+            
+            <div class="space-y-8">
+                <div class="ds-input-wrapper flex items-center px-6 py-1 rounded-sm">
+                    <span class="material-symbols-outlined text-ds-secondary/60 mr-4">location_on</span>
+                    <input id="masos-search" 
+                           class="w-full bg-transparent border-none py-5 focus:ring-0 font-data text-base placeholder:text-ds-on-variant/30 text-ds-on-surface" 
+                           placeholder="Ciudad, dirección o CP..." 
+                           type="text"/>
+                    <button onclick="performSearch()" class="hover:text-ds-secondary transition-colors text-ds-on-variant">
+                        <span class="material-symbols-outlined">search</span>
+                    </button>
+                </div>
+                
+                <div class="flex items-center gap-6">
+                    <button onclick="useMyLocation()" class="flex items-center gap-2 text-[10px] font-black text-ds-secondary hover:text-ds-on-surface tracking-[0.3em] uppercase transition-all">
+                        <span class="material-symbols-outlined text-base">near_me</span>
+                        Mi ubicación
+                    </button>
+                    <div id="loader" class="hidden animate-spin rounded-full h-3 w-3 border border-ds-secondary border-t-transparent"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Meta Results -->
+        <div class="px-10 lg:px-16 py-6 bg-ds-surface flex items-center justify-between">
+            <span id="results-count" class="font-data text-[10px] font-bold text-ds-on-variant/40 uppercase tracking-[0.3em]">Cargando...</span>
+            <div id="search-feedback" class="text-[10px] font-data text-ds-secondary/60 hidden italic">Mostrando cercanía a <span id="search-center-name">...</span></div>
+        </div>
+
+        <!-- Scrollable Store List -->
+        <div id="store-list-container" class="flex-1 overflow-y-auto no-scrollbar pb-24">
+            <!-- List Items Inject -->
+        </div>
+    </aside>
+
+    <!-- Map: 65% Weight -->
+    <main class="flex-1 relative bg-ds-surface">
+        <div id="masos-map"></div>
+        
+        <!-- Premium Controls Overlays -->
+        <div class="absolute top-10 left-10 z-[1000] flex flex-col gap-4">
+            <div class="bg-ds-surface-high/80 backdrop-blur-xl p-1.5 flex gap-1 rounded-sm shadow-2xl">
+                <button onclick="filterByType('all')"   class="filter-btn px-6 py-3 text-[9px] font-black uppercase tracking-widest bg-ds-secondary text-ds-surface rounded-sm transition-all" id="btn-all">Todos</button>
+                <button onclick="filterByType('premium')" class="filter-btn px-6 py-3 text-[9px] font-black uppercase tracking-widest text-ds-on-variant hover:text-ds-on-surface rounded-sm transition-all" id="btn-premium">Tiendas</button>
+                <button onclick="filterByType('restaurant')"  class="filter-btn px-6 py-3 text-[9px] font-black uppercase tracking-widest text-ds-on-variant hover:text-ds-on-surface rounded-sm transition-all" id="btn-restaurant">Hospitalidad</button>
+            </div>
+        </div>
+        
+        <div class="absolute bottom-10 right-10 z-[1000]">
+            <button onclick="zoomToIncludeAll()" class="w-14 h-14 bg-ds-surface-high/80 backdrop-blur-xl text-ds-on-surface hover:text-ds-secondary flex items-center justify-center transition-all shadow-2xl">
+                <span class="material-symbols-outlined">fit_screen</span>
+            </button>
+        </div>
+    </main>
+</div>
+
+<!-- 4. Lógica de Negocio (Antigravity v4.0) -->
+<script>
+(function() {
+    // Endpoints y Datos
+    const API_URL = '/wp-json/masos/v1/stores'; // Fallback a mock si falla
+    let masterData = [];
+    let filteredData = [];
+    let map = null;
+    let markers = [];
+    let activeMarker = null;
+    let searchCenter = null;
+
+    // 1. Inicialización
+    async function init() {
+        initMap();
+        await fetchData();
+        setupEventListeners();
+    }
+
+    function initMap() {
+        map = L.map('masos-map', { 
+            zoomControl: false, 
+            attributionControl: false,
+            wheelPxPerZoomLevel: 120
+        }).setView([40.4168, -3.7038], 6);
+
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
+    }
+
+    async function fetchData() {
+        showLoader(true);
+        try {
+            // Intentar fetch real
+            const response = await fetch(API_URL).catch(() => null);
+            if (response && response.ok) {
+                masterData = await response.json();
+            } else {
+                // Mock Data de Calidad para el Demo
+                masterData = [
+                    { "id": "1", "name": "Alfonso Lara Alimentación", "lat": 38.538, "lng": -0.131, "addr": "Carrer de la Garita 10", "city": "Benidorm", "type": "premium" },
+                    { "id": "2", "name": "Apicola Pérez", "lat": 38.675, "lng": -0.198, "addr": "Calle de la Virgen 18", "city": "Guadalest", "type": "premium" },
+                    { "id": "3", "name": "Restaurante La Paloma", "lat": 40.423, "lng": -3.682, "addr": "Calle de Jorge Juan 39", "city": "Madrid", "type": "restaurant" },
+                    { "id": "4", "name": "Restaurante Estimar", "lat": 40.416, "lng": -3.695, "addr": "Calle del Marqués de Cubas 18", "city": "Madrid", "type": "restaurant" },
+                    { "id": "5", "name": "THE COMM Restaurant", "lat": 38.576, "lng": -0.108, "addr": "Polígon Nou Racó 2", "city": "Alfaz del Pi", "type": "restaurant" }
+                ];
+            }
+            filteredData = [...masterData];
+            render();
+        } catch (e) {
+            console.error("Critical Failure:", e);
+        } finally {
+            showLoader(false);
+        }
+    }
+
+    // 2. Lógica de Búsqueda y Geocodificación (Proximidad Real)
+    async function geocode(query) {
+        if (!query || query.length < 3) return null;
+        try {
+            const resp = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`);
+            const data = await resp.json();
+            if (data && data[0]) {
+                return {
+                    lat: parseFloat(data[0].lat),
+                    lng: parseFloat(data[0].lon),
+                    name: data[0].display_name.split(',')[0]
+                };
+            }
+        } catch (e) { console.error("Geocoding Error", e); }
+        return null;
+    }
+
+    window.performSearch = async () => {
+        const query = document.getElementById('masos-search').value;
+        if (!query) {
+            resetSearch();
+            return;
+        }
+
+        showLoader(true);
+        const center = await geocode(query);
+        
+        if (center) {
+            searchCenter = center;
+            map.flyTo([center.lat, center.lng], 12, { duration: 1.5 });
+            
+            document.getElementById('search-feedback').classList.remove('hidden');
+            document.getElementById('search-center-name').innerText = center.name;
+            
+            // Ordenar por proximidad real al centro de búsqueda
+            filteredData.sort((a, b) => distance(center.lat, center.lng, a.lat, a.lng) - distance(center.lat, center.lng, b.lat, b.lng));
+        } else {
+            // Fallback: Filtrado de texto simple si falla el geocode
+            filteredData = masterData.filter(s => 
+                s.name.toLowerCase().includes(query.toLowerCase()) || 
+                s.city?.toLowerCase().includes(query.toLowerCase())
+            );
+        }
+        
+        render();
+        showLoader(false);
+    };
+
+    function resetSearch() {
+        searchCenter = null;
+        filteredData = [...masterData];
+        document.getElementById('search-feedback').classList.add('hidden');
+        render();
+        zoomToIncludeAll();
+    }
+
+    // 3. Renderizado y Sincronización
+    function render() {
+        const listContainer = document.getElementById('store-list-container');
+        const countLabel = document.getElementById('results-count');
+        
+        listContainer.innerHTML = '';
+        clearMarkers();
+
+        countLabel.innerText = `${filteredData.length} PUNTOS DE INTERÉS`;
+
+        filteredData.forEach((store, index) => {
+            const dist = searchCenter ? distance(searchCenter.lat, searchCenter.lng, store.lat, store.lng).toFixed(1) + ' KM' : '';
+            
+            // Side Card
+            const card = document.createElement('div');
+            card.className = `store-item cursor-pointer group`;
+            card.id = `listing-${store.id}`;
+            card.innerHTML = `
+                <div class="flex justify-between items-baseline mb-3">
+                    <h3 class="text-3xl ds-title font-light">${store.name}</h3>
+                    <span class="font-data text-[10px] font-black text-ds-secondary tracking-widest">${dist}</span>
+                </div>
+                <p class="text-ds-on-variant opacity-50 font-data text-[11px] mb-8 leading-relaxed max-w-[85%]">${store.addr}, ${store.city}</p>
+                <div class="flex gap-10">
+                    <button class="text-[9px] font-black uppercase tracking-[0.3em] text-ds-secondary flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm">explore</span> Ver en mapa
+                    </button>
+                    <a href="https://www.google.com/maps/dir/?api=1&destination=${store.lat},${store.lng}" target="_blank" class="text-[9px] font-black uppercase tracking-[0.3em] text-ds-on-variant hover:text-ds-on-surface flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm">directions</span> Ruta
+                    </a>
+                </div>
+            `;
+            
+            card.onclick = () => selectStore(store, true);
+            listContainer.appendChild(card);
+
+            // Marker
+            const markerIcon = L.divIcon({
+                className: `custom-marker-div ${store.id === activeMarker?.id ? 'active-marker' : ''}`,
+                html: `<div class="pin-premium"></div>`,
+                iconSize: [24, 24],
+                iconAnchor: [12, 12]
+            });
+
+            const marker = L.marker([store.lat, store.lng], { icon: markerIcon }).addTo(map);
+            
+            marker.on('click', () => selectStore(store, false));
+            
+            markers.push({ id: store.id, marker, store });
+        });
+    }
+
+    function selectStore(store, fromList) {
+        // Reset old
+        document.querySelectorAll('.store-item').forEach(el => el.classList.remove('active'));
+        
+        // Update New
+        const card = document.getElementById(`listing-${store.id}`);
+        if (card) {
+            card.classList.add('active');
+            if (!fromList) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        // Map Sync
+        map.flyTo([store.lat, store.lng], 15, { duration: 1.2 });
+        
+        // Update Marker styling (re-render or DOM manipulation)
+        markers.forEach(m => {
+            const el = m.marker.getElement();
+            if (el) el.classList.remove('active-marker');
+        });
+        
+        const activeM = markers.find(m => m.id === store.id);
+        if (activeM) {
+            const el = activeM.marker.getElement();
+            if (el) el.classList.add('active-marker');
+        }
+    }
+
+    // Utilitarios
+    function distance(lat1, lon1, lat2, lon2) {
+        const p = 0.017453292519943295; // Math.PI / 180
+        const c = Math.cos;
+        const a = 0.5 - c((lat2 - lat1) * p)/2 + c(lat1 * p) * c(lat2 * p) * (1 - c((lon2 - lon1) * p))/2;
+        return 12742 * Math.asin(Math.sqrt(a)); // 2 * R; R = 6371 km
+    }
+
+    function clearMarkers() {
+        markers.forEach(m => map.removeLayer(m.marker));
+        markers = [];
+    }
+
+    window.zoomToIncludeAll = () => {
+        if (markers.length > 0) {
+            const group = new L.featureGroup(markers.map(m => m.marker));
+            map.fitBounds(group.getBounds().pad(0.3));
+        }
+    };
+
+    window.filterByType = (type) => {
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.classList.remove('bg-ds-secondary', 'text-ds-surface');
+            btn.classList.add('text-ds-on-variant');
+        });
+        const activeBtn = document.getElementById(`btn-${type}`);
+        activeBtn.classList.remove('text-ds-on-variant');
+        activeBtn.classList.add('bg-ds-secondary', 'text-ds-surface');
+
+        if (type === 'all') filteredData = [...masterData];
+        else filteredData = masterData.filter(s => s.type === type);
+        render();
+    };
+
+    window.useMyLocation = () => {
+        if (navigator.geolocation) {
+            showLoader(true);
+            navigator.geolocation.getCurrentPosition(pos => {
+                searchCenter = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+                map.flyTo([searchCenter.lat, searchCenter.lng], 13);
+                performSearch(); // Re-sort by my location
+            }, () => showLoader(false));
+        }
+    };
+
+    function showLoader(show) {
+        document.getElementById('loader').classList.toggle('hidden', !show);
+    }
+
+    function setupEventListeners() {
+        document.getElementById('masos-search').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') performSearch();
+        });
+    }
+
+    // Kick-off
+    document.addEventListener('DOMContentLoaded', init);
+})();
+</script>

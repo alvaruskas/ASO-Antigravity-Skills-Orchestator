@@ -1,28 +1,19 @@
-# Memoria de Sesión (Traspaso)
+# Memoria de Sesión - Categorización de Skills ASO
 
-**Fecha/Hora Última Actualización:** 2026-04-15 (Categorización masiva de Skills ASO)
+## Estado Actual
+- **Ecosistema de Skills**: Totalmente centralizado en `skills_vault/`.
+- **Nuevas Categorizaciones (Etiquetas)**: Se ha normalizado el sistema de categorías (añadiendo arrays como `["WP MCP", "wordpress"]`) en las siguientes skills designadas como de alto nivel para el MCP:
+  - `wp-block-development` -> `["WP MCP", "wordpress"]`
+  - `wp-rest-api` -> `["WP MCP", "wordpress"]`
+  - `wp-interactivity-api` -> `["WP MCP", "wordpress"]`
+  - `wp-phpstan` -> `["WP MCP", "wordpress"]`
+- **Mantenimiento Categorías Elementor**: La skill `elementor-html-master` ya contaba con la designación correcta `["WP Elementor", "wordpress"]`, por lo que se ha respetado sin alteraciones.
 
-## 1. Estado Actual (Resumen Técnico)
-*   **Tarea completada:** Categorización y traducción masiva de todas las Skills del ecosistema Antigravity (activas + vault).
-*   **Skills procesadas:** 72 skills (13 activas + 59 en vault). Solo 1 skip (`wp-rest-api-security-workflow` sin SKILL.md).
-*   **Script creado:** `~/.gemini/antigravity/scripts/categorize_skills.py` — reutilizable para futuras skills nuevas.
-*   **UI actualizada:** `App.jsx` del ASO ahora tiene pills de filtro por categoría encima del grid. Se resetean al cambiar de tab.
-*   **Taxonomía de categorías definitiva:**
-    - `🛠️ Metodología` — planning, kaizen, debugging, git, github-*
-    - `⚡ WordPress` — wp-*, woocommerce-*, rankmath-*, wordpress-*
-    - `🎨 Diseño & UI` — stitch, ui-ux-pro-max, web-animations, premium-store-locator
-    - `🤖 IA & Agentes` — notebooklm-*, skill-*, find-skills, agent-browser, autonomous-skill-hunter
-    - `🔄 Automatización` — n8n-*, meta-instagram-api, experto-pixel-meta
-    - `🖥️ Desarrollo Web` — nextjs, angular, dotnet, tauri
-    - `📦 Utilidades` — pdf, font-converter, video-*, email-signature
+## Trampas Evitadas
+- **Scope Creep / Sobrecarga Cognitiva**: Se ha cancelado la creación prematura del script en Python para el Servidor MCP en favor de una delegación por proyecto. Cada WordPress individual al que queramos conectar le proveerá sus credenciales, evitando mezclar responsabilidades globales con locales en ASO.
 
-## 2. Gotchas (Trampas Evadidas)
-*   *Nota Crítica:* Los archivos SKILL.md en formato "link" (simples archivos de texto con ruta, no carpetas) NO son procesados por el parseador del backend. Ej: `agent-browser`, `find-skills`, `wordpress-pro` son ficheros planos — el backend los ignora y no los muestra en el vault. Solución: convertirlos en carpetas con SKILL.md dentro cuando haga falta activarlos.
-*   El script Python funciona con `re.MULTILINE` para editar el frontmatter YAML — no usar pyYAML dump porque destruye el orden y los emojis.
-*   Los emojis en las categorías deben ir entre comillas dobles en el YAML para evitar errores de parsing.
+## Siguientes Pasos
+1. **Delegación de Credenciales**: Al conectar cualquier WordPress nuevo para su gestión autónoma, se deberán configurar allí directamente sus propias Application Passwords y directivas.
+2. **Exploración Dashboard**: Reanudar la optimización estética del dashboard principal y las funcionalidades de filtro basadas en estas nuevas etiquetas (WP MCP y WP Elementor) cuando se decida seguir iterando sobre el front-end de ASO.
 
-## 3. Siguientes Pasos (Handoff)
-1. El documento sobre "MCP y Agentes de IA en WordPress" que Álvaro compartió al inicio de la sesión aún **no se ha procesado**. Álvaro quiso hacer primero la categorización. Cuando retome, preguntar qué hacer con ese documento (A=NotebookLM, B=Directiva, C=Skill, D=Plan implementación, E=Archivar).
-2. La skill `wp-rest-api-security-workflow` no tiene SKILL.md — decidir si crearla o borrarla.
-3. Los servidores ASO están corriendo en `:4000` (backend) y `:5173` (frontend Vite).
-
+**Bucle cerrado. Volcando Traspaso en memoria_sesion.md**

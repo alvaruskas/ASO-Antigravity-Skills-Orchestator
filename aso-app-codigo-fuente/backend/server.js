@@ -200,6 +200,31 @@ app.get('/api/skills', (req, res) => {
     res.json(skills);
 });
 
+// Endpoint para leer la memoria de sesión (memoria_sesion.md)
+app.get('/api/session-memory', (req, res) => {
+    if (!PROJECT_PATH) {
+        return res.json({ success: false, message: "No estás en un contexto de proyecto activo (Global)." });
+    }
+    
+    const memoryPath = path.join(PROJECT_PATH, 'directivas', 'memoria_sesion.md');
+    
+    if (!fs.existsSync(memoryPath)) {
+        return res.json({ 
+            success: false, 
+            message: "No se encontró el archivo 'memoria_sesion.md' en la carpeta 'directivas/'.",
+            path: memoryPath
+        });
+    }
+
+    try {
+        const content = fs.readFileSync(memoryPath, 'utf8');
+        res.json({ success: true, content });
+    } catch (error) {
+        console.error("Error reading session memory:", error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
 // Toggle a skill's active state physically
 app.post('/api/toggle', (req, res) => {
     const { id, targetState, scope } = req.body;

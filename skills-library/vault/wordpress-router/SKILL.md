@@ -1,52 +1,52 @@
 ---
 name: wordpress-router
-description: "Clasificador y enrutador de repositorios WordPress. Detecta el tipo de proyecto (plugin, tema, bloque) y aplica el flujo de trabajo correcto."
-compatibility: "Targets WordPress 6.9+ (PHP 7.2.24+). Filesystem-based agent with bash + node. Some workflows require WP-CLI."
-category: "⚡ WordPress"
+description: "Úsalo cuando el usuario pregunte sobre bases de código de WordPress (plugins, temas, temas de bloques, bloques de Gutenberg, checkouts del núcleo de WP) y necesites clasificar rápidamente el repositorio y enrutar al flujo de trabajo/skill correcto (bloques, theme.json, API REST, WP-CLI, rendimiento, seguridad, pruebas, empaquetado de lanzamiento)."
+compatibility: "Objetivo WordPress 6.9+ (PHP 7.2.24+). Agente basado en sistema de archivos con bash + node. Algunos flujos de trabajo requieren WP-CLI."
+category: ["WP MCP", "wordpress"]
 ---
 
-# WordPress Router
+# Enrutador de WordPress
 
-## When to use
+## Cuándo usar
 
-Use this skill at the start of most WordPress tasks to:
+Usa esta skill al comienzo de la mayoría de las tareas de WordPress para:
 
-- identify what kind of WordPress codebase this is (plugin vs theme vs block theme vs WP core checkout vs full site),
-- pick the right workflow and guardrails,
-- delegate to the most relevant domain skill(s).
+- identificar qué tipo de base de código de WordPress es esta (plugin vs tema vs tema de bloques vs checkout del núcleo de WP vs sitio completo),
+- elegir el flujo de trabajo y medidas de seguridad correctas,
+- delegar a la(s) skill(s) de dominio más relevante(s).
 
-## Inputs required
+## Entradas requeridas
 
-- Repo root (current working directory).
-- The user’s intent (what they want changed) and any constraints (WP version targets, WP.com specifics, release requirements).
+- Raíz del repositorio (directorio de trabajo actual).
+- La intención del usuario (qué quieren cambiar) y cualquier restricción (versiones objetivo de WP, detalles de WP.com, requisitos de lanzamiento).
 
-## Procedure
+## Procedimiento
 
-1. Run the project triage script:
+1. Ejecuta el script de clasificación del proyecto:
    - `node skills/wp-project-triage/scripts/detect_wp_project.mjs`
-2. Read the triage output and classify:
-   - primary project kind(s),
-   - tooling available (PHP/Composer, Node, @wordpress/scripts),
-   - tests present (PHPUnit, Playwright, wp-env),
-   - any version hints.
-3. Route to domain workflows based on user intent + repo kind:
-   - For the decision tree, read: `skills/wordpress-router/references/decision-tree.md`.
-4. Apply guardrails before making changes:
-   - Confirm any version constraints if unclear.
-   - Prefer the repo’s existing tooling and conventions for builds/tests.
+2. Lee la salida de la clasificación y clasifica:
+   - tipo(s) de proyecto principal(es),
+   - herramientas disponibles (PHP/Composer, Node, @wordpress/scripts),
+   - pruebas presentes (PHPUnit, Playwright, wp-env),
+   - cualquier pista sobre la versión.
+3. Enruta a flujos de trabajo de dominio basados en la intención del usuario + tipo de repositorio:
+   - Para el árbol de decisión, lee: `skills/wordpress-router/references/decision-tree.md`.
+4. Aplica las medidas de seguridad antes de realizar cambios:
+   - Confirma cualquier restricción de versión si no está clara.
+   - Prefiere las herramientas y convenciones existentes del repositorio para compilaciones/pruebas.
 
-## Verification
+## Verificación
 
-- Re-run the triage script if you create or restructure significant files.
-- Run the repo’s lint/test/build commands that the triage output recommends (if available).
+- Vuelve a ejecutar el script de clasificación si creas o reestructuras archivos significativos.
+- Ejecuta los comandos lint/test/build del repositorio que recomiende la salida de la clasificación (si están disponibles).
 
-## Failure modes / debugging
+## Modos de fallo / depuración
 
-- If triage reports `kind: unknown`, inspect:
-  - root `composer.json`, `package.json`, `style.css`, `block.json`, `theme.json`, `wp-content/`.
-- If the repo is huge, consider narrowing scanning scope or adding ignore rules to the triage script.
+- Si la clasificación reporta `kind: unknown`, inspecciona:
+  - `composer.json`, `package.json`, `style.css`, `block.json`, `theme.json`, `wp-content/` en la raíz.
+- Si el repositorio es enorme, considera reducir el alcance del escaneo o añadir reglas de ignorado al script de clasificación.
 
-## Escalation
+## Escalada
 
-- If routing is ambiguous, ask one question:
-  - “Is this intended to be a WordPress plugin, a theme (classic/block), or a full site repo?”
+- Si el enrutamiento es ambiguo, haz una pregunta:
+  - "¿Está destinado esto a ser un plugin de WordPress, un tema (clásico/bloques), o un repositorio de sitio completo?"
